@@ -199,10 +199,6 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                         if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id);
                 
                         let idParticipantesAtuais = grupoInfo.participantes;
-                        const botId = await client.getHostNumber() + '@s.whatsapp.net'; // Obtém o ID do bot
-                
-                        // Remove o bot da lista de participantes
-                        idParticipantesAtuais = idParticipantesAtuais.filter(participante => participante !== botId);
                 
                         if (idParticipantesAtuais.length < 2) return await socket.responderTexto(c, chatId, msgs_texto.diversao.casal.minimo, id);
                 
@@ -305,11 +301,7 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                 try {
                     if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id);
                     
-                    var idParticipantesAtuais = await client.getGroupMembersId(groupId);
-                    const botId = await client.getHostNumber() + '@c.us'; // Obtém o ID do bot
-            
-                    // Remove o bot da lista de participantes
-                    idParticipantesAtuais = idParticipantesAtuais.filter(participante => participante !== botId);
+                    let idParticipantesAtuais = grupoInfo.participantes
             
                     if (idParticipantesAtuais.length < 3) return await socket.responderTexto(c, chatId, msgs_texto.diversao.trisal.minimo, id);
             
@@ -324,8 +316,8 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                     indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length);
                     var pessoaEscolhida3 = idParticipantesAtuais[indexAleatorio];
             
-                    var respostaTexto = criarTexto(msgs_texto.diversao.trisal.resposta, pessoaEscolhida1.replace(/@c.us/g, ''), pessoaEscolhida2.replace(/@c.us/g, ''), pessoaEscolhida3.replace(/@c.us/g, ''));
-                    await client.sendTextWithMentions(from, respostaTexto);
+                    var respostaTexto = criarTexto(msgs_texto.diversao.trisal.resposta, pessoaEscolhida1.replace("@s.whatsapp.net", ''), pessoaEscolhida2.replace("@s.whatsapp.net", ''), pessoaEscolhida3.replace("@s.whatsapp.net", ''));
+                    await socket.enviarTextoComMencoes(c, chatId, respostaTexto, [pessoaEscolhida1, pessoaEscolhida2, pessoaEscolhida3]);
                 } catch (err) {
                     throw err;
                 }
@@ -344,9 +336,6 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                 if (isNaN(qtdUsuarios)) return await socket.responderTexto(c, chatId, msgs_texto.diversao.top.erro_qtd, id)
                 if (qtdUsuarios > 50) return await socket.responderTexto(c, chatId, msgs_texto.diversao.top.limite_qtd, id)
                 if (qtdUsuarios > idParticipantesAtuais.length) return await socket.responderTexto(c, chatId, msgs_texto.diversao.top.erro_qtd, id)
-                
-                idParticipantesAtuais = idParticipantesAtuais.filter(participante => participante !== botId)
-                console.log(`Participantes após remover o bot: ${idParticipantesAtuais.map(p => p.id).join(', ')}`)
                 
                 let respostaTexto = criarTexto(msgs_texto.diversao.top.resposta_titulo, qtdUsuarios, temaRanking)
                 let mencionarMembros = []
@@ -378,47 +367,43 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
             }
             break
 
-
-                
-
-
             case 'jacometro':
-                if (!isGroupMsg) return await client.reply(from, msgs_texto.permissao.grupo, id)
-                if (!quotedMsg && mentionedJidList.length === 0) return await client.reply(from, erroComandoMsg(command), id)
-                if (mentionedJidList.length > 1) return await client.reply(from, msgs_texto.diversao.jacometro.apenas_um, id)
+                if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id)
+                if(!quotedMsg && mentionedJidList.length == 0) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
+                if (mentionedJidList.length > 1) return await socket.responderTexto(c, chatId, msgs_texto.diversao.jacometro.apenas_um, id)
                 var respostas = msgs_texto.diversao.jacometro.respostas
                 var indexAleatorio = Math.floor(Math.random() * respostas.length), idResposta = null, alvo = null
-                if (mentionedJidList.length == 1) idResposta = id, alvo = mentionedJidList[0].replace(/@c.us/g, '')
-                else idResposta = quotedMsgObj.id, alvo = quotedMsgObj.author.replace(/@c.us/g, '')
-                if (ownerNumber == alvo) indexAleatorio = 0
+                if(mentionedJidList.length == 1) idResposta = id, alvo = mentionedJidList[0]
+                else idResposta = quotedMsgObj, alvo = quotedMsgObjInfo.sender
+                //if (ownerNumber == alvo) indexAleatorio = 0
                 var respostaTexto = criarTexto(msgs_texto.diversao.jacometro.resposta, respostas[indexAleatorio])
-                await client.reply(from, respostaTexto, idResposta)
+                await socket.responderTexto(c, chatId, respostaTexto, idResposta)
                 break
 
             case 'bolometro':
-                if (!isGroupMsg) return await client.reply(from, msgs_texto.permissao.grupo, id)
-                if (!quotedMsg && mentionedJidList.length === 0) return await client.reply(from, erroComandoMsg(command), id)
-                if (mentionedJidList.length > 1) return await client.reply(from, msgs_texto.diversao.bolametro.apenas_um, id)
+                if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id)
+                if(!quotedMsg && mentionedJidList.length == 0) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
+                if (mentionedJidList.length > 1) return await socket.responderTexto(c, chatId, msgs_texto.diversao.bolametro.apenas_um, id)
                 var respostas = msgs_texto.diversao.bolametro.respostas
                 var indexAleatorio = Math.floor(Math.random() * respostas.length), idResposta = null, alvo = null
-                if (mentionedJidList.length == 1) idResposta = id, alvo = mentionedJidList[0].replace(/@c.us/g, '')
-                else idResposta = quotedMsgObj.id, alvo = quotedMsgObj.author.replace(/@c.us/g, '')
-                if (ownerNumber == alvo) indexAleatorio = 0
+                if(mentionedJidList.length == 1) idResposta = id, alvo = mentionedJidList[0]
+                else idResposta = quotedMsgObj, alvo = quotedMsgObjInfo.sender
+                //if (ownerNumber == alvo) indexAleatorio = 0
                 var respostaTexto = criarTexto(msgs_texto.diversao.bolametro.resposta, respostas[indexAleatorio])
-                await client.reply(from, respostaTexto, idResposta)
+                await socket.responderTexto(c, chatId, respostaTexto, idResposta)
                 break
 
             case 'fernandometro':
-                if (!isGroupMsg) return await client.reply(from, msgs_texto.permissao.grupo, id)
-                if (!quotedMsg && mentionedJidList.length === 0) return await client.reply(from, erroComandoMsg(command), id)
-                if (mentionedJidList.length > 1) return await client.reply(from, msgs_texto.diversao.fernandometro.apenas_um, id)
+                if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id)
+                if(!quotedMsg && mentionedJidList.length == 0) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
+                if (mentionedJidList.length > 1) return await socket.responderTexto(c, chatId, msgs_texto.diversao.fernandometro.apenas_um, id)
                 var respostas = msgs_texto.diversao.fernandometro.respostas
                 var indexAleatorio = Math.floor(Math.random() * respostas.length), idResposta = null, alvo = null
-                if (mentionedJidList.length == 1) idResposta = id, alvo = mentionedJidList[0].replace(/@c.us/g, '')
-                else idResposta = quotedMsgObj.id, alvo = quotedMsgObj.author.replace(/@c.us/g, '')
-                if (ownerNumber == alvo) indexAleatorio = 0
+                if(mentionedJidList.length == 1) idResposta = id, alvo = mentionedJidList[0]
+                else idResposta = quotedMsgObj, alvo = quotedMsgObjInfo.sender
+                //if (ownerNumber == alvo) indexAleatorio = 0
                 var respostaTexto = criarTexto(msgs_texto.diversao.fernandometro.resposta, respostas[indexAleatorio])
-                await client.reply(from, respostaTexto, idResposta)
+                await socket.responderTexto(c, chatId, respostaTexto, idResposta)
                 break
 
             case 'vod':

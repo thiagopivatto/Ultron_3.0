@@ -706,7 +706,7 @@ export const obterMensagensTexto = (botInfo)=>{
             },
             trisal: {
                 minimo: "[❗] Este comando precisa de no mínimo 3 membros no grupo.",
-                resposta: "👩‍❤️‍👨 HMMM TRIÂNGULO AMOROSO FORMADO, A PEGAÇÃO ROLA ENTRE: - @{p1}, @{p2} e @{p3}"
+                resposta: "👩‍❤️‍👨 HMMM TRIÂNGULO AMOROSO FORMADO, A PEGAÇÃO TA ROLANDO ENTRE: \n@{p1}\n@{p2}\n@{p3}"
             },
             vod: {
                 sem_membros: "[❗] Escolha alguém pra participar do jogo.",
