@@ -157,7 +157,7 @@ export const obterMensagensTexto = (botInfo)=>{
             }
         },
         utilidades:{
-            gpt:{
+            chat:{
                 resposta: "{p1}"
             },
             criarimg:{
@@ -704,6 +704,10 @@ export const obterMensagensTexto = (botInfo)=>{
                 ],
                 resposta: "👩‍❤️‍👨 PAR - @{p1} & @{p2}\n\n{p3}"
             },
+            trisal: {
+                minimo: "[❗] Este comando precisa de no mínimo 3 membros no grupo.",
+                resposta: "👩‍❤️‍👨 HMMM TRIÂNGULO AMOROSO FORMADO, A PEGAÇÃO ROLA ENTRE: - @{p1}, @{p2} e @{p3}"
+            },
             vod: {
                 sem_membros: "[❗] Escolha alguém pra participar do jogo.",
                 erro_servidor: "Erro em contatar a API",
@@ -712,6 +716,12 @@ export const obterMensagensTexto = (botInfo)=>{
                 resposta: "VERDADE OU DESAFIO\n\n"+
                 "Nível:{p1}\n"+
                 "{p2}"
+            },
+            // Respostas para Suno-AI, criador de músicas automáticas
+            musica: {
+                erro_servidor: "[❗] Houve um erro para obter a música do servidor.",
+                resposta: "🎵 *{p1}* - {p2}\n"+
+                "🎧 *{p3}*"
             }
         },
         admin: {

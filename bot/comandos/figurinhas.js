@@ -7,11 +7,11 @@ import api from '../../api/api.js'
 import {obterMensagensTexto} from '../lib/msgs.js'
 
 
-export const figurinhas = async(c, mensagemBaileys, botInfo) => {
-    const msgs_texto = obterMensagensTexto(botInfo)
-    const {prefixo, nome_pack, nome_bot } = botInfo
-    const {textoRecebido, command, args, type, id, chatId, mimetype, quotedMsg, seconds, quotedMsgObjInfo, quotedMsgObj} = mensagemBaileys
-    let cmdSemPrefixo = command.replace(prefixo, "")
+export const figurinhas = async (c, mensagemBaileys, botInfo) => {
+    const msgs_texto = obterMensagensTexto(botInfo);
+    const { prefixo, nome_pack, nome_bot } = botInfo;
+    const { textoRecebido, command, args, type, id, chatId, mimetype, quotedMsg, seconds, quotedMsgObjInfo, quotedMsgObj } = mensagemBaileys;
+    let cmdSemPrefixo = command.replace(prefixo, "");
     
     try{
         switch(cmdSemPrefixo){
@@ -35,31 +35,31 @@ export const figurinhas = async(c, mensagemBaileys, botInfo) => {
                 break 
 
             case 's':
-                try{
-                    let stickerArg, tipoFigurinha
-                    if(args.length > 1) stickerArg = args[1]
-                    let argSuportado = ['1', '2'].includes(stickerArg)
-                    if(!argSuportado) tipoFigurinha = 'default'
-                    if(argSuportado){
-                        if(stickerArg == 1) tipoFigurinha = 'circle'
+                try {
+                    let stickerArg, tipoFigurinha;
+                    if (args.length > 1) stickerArg = args[1];
+                    let argSuportado = ['1', '2'].includes(stickerArg);
+                    if (!argSuportado) tipoFigurinha = 'default';
+                    if (argSuportado) {
+                        if (stickerArg == 1) tipoFigurinha = 'circle';
                     }
                     let dadosMensagem = {
-                        tipo : (quotedMsg) ? quotedMsgObjInfo.type : type,
-                        mimetype : (quotedMsg) ? quotedMsgObjInfo.mimetype : mimetype,
-                        message: (quotedMsg) ? quotedMsgObj  : id,
+                        tipo: (quotedMsg) ? quotedMsgObjInfo.type : type,
+                        mimetype: (quotedMsg) ? quotedMsgObjInfo.mimetype : mimetype,
+                        message: (quotedMsg) ? quotedMsgObj : id,
                         seconds: (quotedMsg) ? quotedMsgObjInfo.seconds : seconds
-                    }
-                    if(dadosMensagem.tipo != MessageTypes.image && dadosMensagem.tipo != MessageTypes.video) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo) , id)
-                    if(dadosMensagem.tipo == MessageTypes.video && dadosMensagem.seconds > 9) return socket.responderTexto(c, chatId, msgs_texto.figurinhas.sticker.video_invalido, id)
-                    let bufferMidia = await downloadMediaMessage(dadosMensagem.message, "buffer")
-                    await api.Stickers.criarSticker(bufferMidia, {pack: nome_pack?.trim(), autor: nome_bot?.trim(), fps: 9, tipo: tipoFigurinha}).then(async ({resultado})=>{
-                        await socket.enviarFigurinha(c, chatId, resultado)
-                    }).catch(async(err)=>{
-                        if(!err.erro) throw err
-                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro) , id)
-                    })
-                } catch(err){
-                    throw err
+                    };
+                    if (dadosMensagem.tipo != MessageTypes.image && dadosMensagem.tipo != MessageTypes.video) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id);
+                    if (dadosMensagem.tipo == MessageTypes.video && dadosMensagem.seconds > 9) return socket.responderTexto(c, chatId, msgs_texto.figurinhas.sticker.video_invalido, id);
+                    let bufferMidia = await downloadMediaMessage(dadosMensagem.message, "buffer");
+                    await api.Stickers.criarSticker(bufferMidia, { pack: nome_pack?.trim(), autor: nome_bot?.trim(), fps: 9, tipo: tipoFigurinha, manterProporcao: true }).then(async ({ resultado }) => {
+                        await socket.enviarFigurinha(c, chatId, resultado);
+                    }).catch(async (err) => {
+                        if (!err.erro) throw err;
+                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro), id);
+                    });
+                } catch (err) {
+                    throw err;
                 }
                 break
             

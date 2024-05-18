@@ -5,7 +5,7 @@ export const listarComandos = (prefixo) => {
             `${prefixo}upimg`,
             `${prefixo}filmes`,
             `${prefixo}series`,
-            `${prefixo}gpt`,
+            `${prefixo}chat`,
             `${prefixo}criarimg`,
             `${prefixo}tabela`,
             `${prefixo}rbg`,
@@ -108,7 +108,8 @@ export const listarComandos = (prefixo) => {
             `${prefixo}jacometro`,
             `${prefixo}bolometro`,
             `${prefixo}fernandometro`, 
-            `${prefixo}vod`
+            `${prefixo}vod`,
+            `${prefixo}musica`
         ],
         admin:[
             `${prefixo}sair`,

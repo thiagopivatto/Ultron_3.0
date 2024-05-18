@@ -5,6 +5,7 @@ import * as socket from '../baileys/socket.js'
 import {MessageTypes} from '../baileys/mensagem.js'
 import {downloadMediaMessage } from '@whiskeysockets/baileys'
 import {obterMensagensTexto} from '../lib/msgs.js'
+import { respostaHercaiImagem } from '../../api/ia.js'
 
 
 export const utilidades = async(c, mensagemBaileys, botInfo) => {
@@ -14,41 +15,41 @@ export const utilidades = async(c, mensagemBaileys, botInfo) => {
     let cmdSemPrefixo = command.replace(prefixo, "")
 
     const criarRespostaCotacao = (data, ativo) => {
-        let resposta = `Cotação:\n`;
-      
+        let resposta = `📈 *Cotação Atual de ${ativo}* 📉\n\n`;
+    
         if (data.b3) {
-          const precoB3 = parseFloat(data.b3.price).toFixed(2).replace('.', ',');
-          resposta += `B3 - ${data.b3.symbol}:\n`;
-          resposta += `- Preço: R$ ${precoB3}\n`;
-          resposta += `- Última atualização: ${data.b3.lastUpdated}\n`;
-          resposta += `- Variação: ${data.b3.change} (${data.b3.changePercent})\n\n`;
+            const precoB3 = parseFloat(data.b3.price).toFixed(2).replace('.', ',');
+            resposta += `🇧🇷 *B3* (${data.b3.symbol})\n`;
+            resposta += `💵 *Preço:* R$ ${precoB3}\n`;
+            resposta += `🗓️ *Última atualização:* ${data.b3.lastUpdated}\n`;
+            resposta += `📉 *Variação:* ${data.b3.change} (${data.b3.changePercent})\n\n`;
         }
-      
+    
         if (data.nasdaq) {
-          const precoNASDAQ = parseFloat(data.nasdaq.price).toFixed(2);
-          resposta += `NASDAQ - ${data.nasdaq.symbol}:\n`;
-          resposta += `- Preço: $ ${precoNASDAQ}\n`;
-          resposta += `- Última atualização: ${data.nasdaq.lastUpdated}\n`;
-          resposta += `- Variação: ${data.nasdaq.change} (${data.nasdaq.changePercent})\n\n`;
+            const precoNASDAQ = parseFloat(data.nasdaq.price).toFixed(2);
+            resposta += `🇺🇸 *NASDAQ* (${data.nasdaq.symbol})\n`;
+            resposta += `💵 *Preço:* $ ${precoNASDAQ}\n`;
+            resposta += `🗓️ *Última atualização:* ${data.nasdaq.lastUpdated}\n`;
+            resposta += `📉 *Variação:* ${data.nasdaq.change} (${data.nasdaq.changePercent})\n\n`;
         }
-      
+    
         if (data.nyse) {
-          const precoNYSE = parseFloat(data.nyse.price).toFixed(2);
-          resposta += `NYSE - ${data.nyse.symbol}:\n`;
-          resposta += `- Preço: $ ${precoNYSE}\n`;
-          resposta += `- Última atualização: ${data.nyse.lastUpdated}\n`;
-          resposta += `- Variação: ${data.nyse.change} (${data.nyse.changePercent})\n\n`;
+            const precoNYSE = parseFloat(data.nyse.price).toFixed(2);
+            resposta += `🇺🇸 *NYSE* (${data.nyse.symbol})\n`;
+            resposta += `💵 *Preço:* $ ${precoNYSE}\n`;
+            resposta += `🗓️ *Última atualização:* ${data.nyse.lastUpdated}\n`;
+            resposta += `📉 *Variação:* ${data.nyse.change} (${data.nyse.changePercent})\n\n`;
         }
-      
+    
         if (data.cryptos) {
-          const precoCrypto = parseFloat(data.cryptos.price).toFixed(9);
-          resposta += `Criptomoeda - ${ativo} - ${data.cryptos.name}:\n`;
-          resposta += `- Preço: $ ${precoCrypto}\n`;
-          resposta += `- Última atualização: ${data.cryptos.lastUpdated}\n\n`;
+            const precoCrypto = parseFloat(data.cryptos.price).toFixed(9);
+            resposta += `💰 *Criptomoeda* - ${data.cryptos.name} (${data.cryptos.symbol})\n`;
+            resposta += `💵 *Preço:* $ ${precoCrypto}\n`;
+            resposta += `🗓️ *Última atualização:* ${data.cryptos.lastUpdated}\n\n`;
         }
-      
+    
         return resposta;
-    };  
+    };    
 
     try{
         switch(cmdSemPrefixo){  
@@ -100,12 +101,12 @@ export const utilidades = async(c, mensagemBaileys, botInfo) => {
                 }
                 break
 
-            case "gpt":
+            case "chat":
                 try{
                     if(args.length === 1) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
                     let usuarioTexto = textoRecebido.slice(5).trim()
                     await api.IA.respostaHercaiTexto(usuarioTexto, sender).then(async ({resultado})=>{
-                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.utilidades.gpt.resposta, resultado), id)
+                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.utilidades.chat.resposta, resultado), id)
                     }).catch(async (err)=>{
                         if(!err.erro) throw err
                         await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro) , id)
@@ -116,17 +117,17 @@ export const utilidades = async(c, mensagemBaileys, botInfo) => {
                 break
             
             case "criarimg":
-                try{
-                    if(args.length === 1) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
+                try {
+                    if (args.length === 1) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
                     let usuarioTexto = textoRecebido.slice(10).trim()
                     await socket.responderTexto(c, chatId, msgs_texto.utilidades.criarimg.espera, id)
-                    await api.IA.respostaHercaiImagem(usuarioTexto).then(async ({resultado})=>{
-                        await socket.responderArquivoUrl(c, MessageTypes.image, chatId, resultado, '', id)     
-                    }).catch(async (err)=>{
-                        if(!err.erro) throw err
-                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro) , id)
+                    await respostaHercaiImagem(usuarioTexto).then(async ({ resultado }) => {
+                        await socket.responderArquivoUrl(c, MessageTypes.image, chatId, resultado, '', id)
+                    }).catch(async (err) => {
+                        if (!err.erro) throw err
+                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro), id)
                     })
-                } catch(err){
+                } catch (err) {
                     throw err
                 }
                 break
@@ -446,23 +447,28 @@ export const utilidades = async(c, mensagemBaileys, botInfo) => {
                 }
                 break
 
-            case 'cotacao':
-                if (args.length < 2) {
-                    client.reply(from, 'Uso incorreto! Utilize o comando da seguinte forma: cotacao <ativo>', id);
-                } else {
-                const ativo = args[1].toUpperCase(); // Obtém o ativo do segundo argumento
-                await api.Gerais.obterCotacao(ativo)
-                    .then((data) => {
-                    const resposta = criarRespostaCotacao(data, ativo);
-                    client.reply(from, resposta, id);
-                    })
-                    .catch((error) => {
-                    console.error('Erro ao obter cotação:', error);
-                    client.reply(from, 'Não foi possível obter a cotação no momento.', id);
-                    });
-                }
-                break
-
+                case 'cotacao':
+                    try {
+                        if (args.length < 2) {
+                            return await socket.responderTexto(c, chatId, 'Uso incorreto! Utilize o comando da seguinte forma: cotacao <ativo>', id);
+                        }
+                        const ativo = args[1].toUpperCase(); // Obtém o ativo do segundo argumento
+                        const resultado = await api.Gerais.obterCotacao(ativo);
+                
+                        if (resultado) {
+                            const resposta = criarRespostaCotacao(resultado, ativo);
+                            await socket.responderTexto(c, chatId, resposta, id);
+                        } else {
+                            await socket.responderTexto(c, chatId, 'Não foi possível obter a cotação no momento.', id);
+                        }
+                    } catch (err) {
+                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_comando_codigo, command), id);
+                        consoleErro(err, "UTILIDADES");
+                    }
+                    break
+                
+                
+                
         }
     } catch(err){
         await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_comando_codigo, command), id)

@@ -86,7 +86,7 @@ export const menuUtilidades = (botInfo)=>{
 |
 |--〖 🔎 CONSULTAS/TEXTO 〗
 |
-|- *${prefixo}gpt* frase - Recebe uma resposta da IA CHATGPT.
+|- *${prefixo}chat* frase - Recebe uma resposta da IA CHATGPT.
 |- *${prefixo}filmes* - Exibe as tendências atuais de filmes.
 |- *${prefixo}series* - Exibe as tendências atuais de séries.
 |- *${prefixo}encurtar* link - Encurta o link digitado.
@@ -100,7 +100,7 @@ export const menuUtilidades = (botInfo)=>{
 |- *${prefixo}rastreio* código - Rastreamento dos CORREIOS.
 |- *${prefixo}ddd* - Responda alguém para ver o estado/região.
 |- *${prefixo}tabela* -  Mostra tabela com caracteres para criação de nicks.
-|- *${prefixo}cotação* - Exibe a cotação atual de algum ativo nas bolsas de valores ou criptos."
+|- *${prefixo}cotacao* - Exibe a cotação atual de algum ativo nas bolsas de valores ou criptos."
 |
 |--〖 🔊 AUDIO 〗
 |

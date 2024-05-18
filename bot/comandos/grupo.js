@@ -509,7 +509,7 @@ export const grupo = async(c, mensagemBaileys, botInfo) => {
                 }
                 break
                 
-            case '!mta':
+            case 'mta':
                     const members = await client.getGroupMembers(groupId);
                     const mensagem = body.slice(5).trim();
                     let mentionString = '';

@@ -53,8 +53,8 @@ export const obterGuias = (prefixo) => {
             `Ex: Envie/responda uma *imagem* com *${prefixo}upimg* - Faz upload da imagem e retorna o link.\n`,
             encurtar: cabecalho+
             `Ex: *${prefixo}encurtar* link - Encurta o link digitado.\n`,
-            gpt: cabecalho+
-            `Ex: *${prefixo}gpt* texto - Recebe uma resposta do CHAT GPT de acordo com o texto.\n`,
+            chat: cabecalho+
+            `Ex: *${prefixo}chat* texto - Recebe uma resposta do CHAT GPT de acordo com o texto.\n`,
             criarimg: cabecalho+
             `Ex: *${prefixo}criarimg* texto - Criar uma imagem de acordo com o texto usando IA.\n`,
             rbg: cabecalho+
@@ -285,6 +285,8 @@ export const obterGuias = (prefixo) => {
             `Ex: *${prefixo}par* @membro1 @membro2 - Mede o nível de compatibilidade dos 2 membros mencionados.\n`,
             fch: cabecalho+
             `Ex: *${prefixo}fch* - Exibe uma frase aleatória montada com as cartas do jogo Cartas contra a Humanidade.\n`,
+            musica: cabecalho+
+            `Ex: *${prefixo}musica* - Cria uma música.\n`,
         },
         admin:{
             admin: cabecalho+

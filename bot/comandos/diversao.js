@@ -5,6 +5,9 @@ import api from '../../api/api.js'
 import * as socket from '../baileys/socket.js'
 import { MessageTypes } from '../baileys/mensagem.js'
 import {obterMensagensTexto} from '../lib/msgs.js'
+import axios from 'axios'
+import { traduzirFrases } from '../../api/gerais.js'
+import { criarMusica } from '../../api/ia.js'
 
 
 export const diversao = async(c, mensagemBaileys, botInfo) => {
@@ -191,22 +194,32 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                 }
                 break
             
-            case 'casal':
-                try{
-                    if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id)
-                    let idParticipantesAtuais = grupoInfo.participantes
-                    if(idParticipantesAtuais.length < 2) return await socket.responderTexto(c, chatId, msgs_texto.diversao.casal.minimo, id)
-                    let indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                    let pessoaEscolhida1 = idParticipantesAtuais[indexAleatorio]
-                    idParticipantesAtuais.splice(indexAleatorio,1)
-                    indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                    let pessoaEscolhida2 = idParticipantesAtuais[indexAleatorio]
-                    let respostaTexto = criarTexto(msgs_texto.diversao.casal.resposta, pessoaEscolhida1.replace("@s.whatsapp.net", ''), pessoaEscolhida2.replace("@s.whatsapp.net", ''))
-                    await socket.enviarTextoComMencoes(c, chatId, respostaTexto, [pessoaEscolhida1, pessoaEscolhida2])
-                } catch(err){
-                    throw err
-                }
-                break
+                case 'casal':
+                    try {
+                        if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id);
+                
+                        let idParticipantesAtuais = grupoInfo.participantes;
+                        const botId = await client.getHostNumber() + '@s.whatsapp.net'; // Obtém o ID do bot
+                
+                        // Remove o bot da lista de participantes
+                        idParticipantesAtuais = idParticipantesAtuais.filter(participante => participante !== botId);
+                
+                        if (idParticipantesAtuais.length < 2) return await socket.responderTexto(c, chatId, msgs_texto.diversao.casal.minimo, id);
+                
+                        let indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length);
+                        let pessoaEscolhida1 = idParticipantesAtuais[indexAleatorio];
+                        idParticipantesAtuais.splice(indexAleatorio, 1);
+                
+                        indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length);
+                        let pessoaEscolhida2 = idParticipantesAtuais[indexAleatorio];
+                
+                        let respostaTexto = criarTexto(msgs_texto.diversao.casal.resposta, pessoaEscolhida1.replace("@s.whatsapp.net", ''), pessoaEscolhida2.replace("@s.whatsapp.net", ''));
+                        await socket.enviarTextoComMencoes(c, chatId, respostaTexto, [pessoaEscolhida1, pessoaEscolhida2]);
+                    } catch (err) {
+                        throw err;
+                    }
+                    break
+                
 
             case 'gadometro':
                 try{
@@ -289,33 +302,57 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
             // NOVOS COMANDOS
 
             case 'trisal':
-                if (!isGroupMsg) return await client.reply(from, msgs_texto.permissao.grupo, id)
-                var idParticipantesAtuais = await client.getGroupMembersId(groupId)
-                if (idParticipantesAtuais.length < 3) return await client.reply(from, msgs_texto.diversao.trisal.minimo, id)
-                var indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                var pessoaEscolhida1 = idParticipantesAtuais[indexAleatorio]
-                idParticipantesAtuais.splice(indexAleatorio, 1)
-                indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                var pessoaEscolhida2 = idParticipantesAtuais[indexAleatorio]
-                idParticipantesAtuais.splice(indexAleatorio, 2)
-                indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                var pessoaEscolhida3 = idParticipantesAtuais[indexAleatorio]
-                idParticipantesAtuais.splice(indexAleatorio, 3)
-                indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                var respostaTexto = criarTexto(msgs_texto.diversao.trisal.resposta, pessoaEscolhida1.replace(/@c.us/g, ''), pessoaEscolhida2.replace(/@c.us/g, ''), pessoaEscolhida3.replace(/@c.us/g, ''))
-                await client.sendTextWithMentions(from, respostaTexto)
+                try {
+                    if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id);
+                    
+                    var idParticipantesAtuais = await client.getGroupMembersId(groupId);
+                    const botId = await client.getHostNumber() + '@c.us'; // Obtém o ID do bot
+            
+                    // Remove o bot da lista de participantes
+                    idParticipantesAtuais = idParticipantesAtuais.filter(participante => participante !== botId);
+            
+                    if (idParticipantesAtuais.length < 3) return await socket.responderTexto(c, chatId, msgs_texto.diversao.trisal.minimo, id);
+            
+                    var indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length);
+                    var pessoaEscolhida1 = idParticipantesAtuais[indexAleatorio];
+                    idParticipantesAtuais.splice(indexAleatorio, 1);
+            
+                    indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length);
+                    var pessoaEscolhida2 = idParticipantesAtuais[indexAleatorio];
+                    idParticipantesAtuais.splice(indexAleatorio, 1);
+            
+                    indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length);
+                    var pessoaEscolhida3 = idParticipantesAtuais[indexAleatorio];
+            
+                    var respostaTexto = criarTexto(msgs_texto.diversao.trisal.resposta, pessoaEscolhida1.replace(/@c.us/g, ''), pessoaEscolhida2.replace(/@c.us/g, ''), pessoaEscolhida3.replace(/@c.us/g, ''));
+                    await client.sendTextWithMentions(from, respostaTexto);
+                } catch (err) {
+                    throw err;
+                }
                 break
+            
 
-            case 'top':
-                if (!isGroupMsg) return await client.reply(from, msgs_texto.permissao.grupo, id)
-                if (args.length === 1) return client.reply(from, erroComandoMsg(command), id)
-                var qtdUsuarios = args[1], temaRanking = body.slice(7).trim(), idParticipantesAtuais = await client.getGroupMembersId(groupId)
-                if (isNaN(qtdUsuarios)) return client.reply(from, msgs_texto.diversao.top.erro_qtd, id)
-                if (qtdUsuarios > 50) return client.reply(from, msgs_texto.diversao.top.limite_qtd, id)
-                if (qtdUsuarios > idParticipantesAtuais.length) return client.reply(from, msgs_texto.diversao.top.erro_qtd, id)
-                var respostaTexto = criarTexto(msgs_texto.diversao.top.resposta_titulo, qtdUsuarios, temaRanking)
+        case 'top':
+            try {
+                if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id)
+                if (args.length === 1) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
+                
+                let qtdUsuarios = parseInt(args[1])
+                let temaRanking = textoRecebido.slice(6 + args[1].length).trim()
+                let idParticipantesAtuais = grupoInfo.participantes
+
+                if (isNaN(qtdUsuarios)) return await socket.responderTexto(c, chatId, msgs_texto.diversao.top.erro_qtd, id)
+                if (qtdUsuarios > 50) return await socket.responderTexto(c, chatId, msgs_texto.diversao.top.limite_qtd, id)
+                if (qtdUsuarios > idParticipantesAtuais.length) return await socket.responderTexto(c, chatId, msgs_texto.diversao.top.erro_qtd, id)
+                
+                idParticipantesAtuais = idParticipantesAtuais.filter(participante => participante !== botId)
+                console.log(`Participantes após remover o bot: ${idParticipantesAtuais.map(p => p.id).join(', ')}`)
+                
+                let respostaTexto = criarTexto(msgs_texto.diversao.top.resposta_titulo, qtdUsuarios, temaRanking)
+                let mencionarMembros = []
+
                 for (let i = 0; i < qtdUsuarios; i++) {
-                    var medalha = ""
+                    let medalha = ""
                     switch (i + 1) {
                         case 1:
                             medalha = '🥇'
@@ -329,13 +366,20 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                         default:
                             medalha = ''
                     }
-                    var indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
-                    var membroSelecionado = idParticipantesAtuais[indexAleatorio]
-                    respostaTexto += criarTexto(msgs_texto.diversao.top.resposta_itens, medalha, i + 1, membroSelecionado.replace(/@c.us/g, ''))
+                    let indexAleatorio = Math.floor(Math.random() * idParticipantesAtuais.length)
+                    let membroSelecionado = idParticipantesAtuais[indexAleatorio]
+                    respostaTexto += criarTexto(msgs_texto.diversao.top.resposta_itens, medalha, i + 1, membroSelecionado.replace("@s.whatsapp.net", ''))
+                    mencionarMembros.push(membroSelecionado)
                     idParticipantesAtuais.splice(idParticipantesAtuais.indexOf(membroSelecionado), 1)
                 }
-                await client.sendTextWithMentions(from, respostaTexto)
-                break
+                await socket.enviarTextoComMencoes(c, chatId, respostaTexto, mencionarMembros)
+            } catch (err) {
+                throw err
+            }
+            break
+
+
+                
 
 
             case 'jacometro':
@@ -377,34 +421,64 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                 await client.reply(from, respostaTexto, idResposta)
                 break
 
-            case "vod":
-                if (!isGroupMsg) return await client.reply(from, "Este comando só pode ser usado em grupos.", id);
-                if (args.length < 3 || args.length > 4) {
-                    return await client.reply(from, "Formato inválido. Use !vod [vdd/dsf] [nível]", id);
-                }
-                const tipoEscolha = args[1].toLowerCase();
-                const nivel = parseInt(args[2]);
-                const tipoEscolhaMapeado = tipoEscolha === 'vdd' ? 'truth' : tipoEscolha === 'dsf' ? 'dare' : '';
-                if (!tipoEscolhaMapeado) {
-                    return await client.reply(from, "Tipo de escolha inválido. Use vdd ou dsf.", id);
-                }
-                if (isNaN(nivel) || nivel < 1 || nivel > 5) {
-                    return await client.reply(from, "Nível inválido. Use um número de 1 a 5.", id);
-                }
-                const frasesVOD = await axios.get("https://gist.githubusercontent.com/thiagopivatto/3ed7f417a37590b75745cc1c4cba450a/raw/a960f63a10323565a21c32d13a457edca67ebb75/vod.json");
-                const frasesFiltradas = frasesVOD.data.filter(frase => frase.level === nivel.toString() && frase.type.toLowerCase() === tipoEscolhaMapeado);
-                if (frasesFiltradas.length > 0) {
-                    await api.traduzirFrases(frasesFiltradas);
-                    const fraseSelecionada = frasesFiltradas[Math.floor(Math.random() * frasesFiltradas.length)];
-                    const mensagemResposta = `Nível: ${nivel}\nTipo: ${tipoEscolha}\nFrase: ${fraseSelecionada.summary}`;
-                    await client.reply(from, mensagemResposta, id);
-                } else {
-                    await client.reply(from, "Não foram encontradas frases com o nível e tipo especificados.", id);
+            case 'vod':
+                try {
+                    if (!isGroupMsg) {
+                        return await socket.responderTexto(c, chatId, "Este comando só pode ser usado em grupos.", id)
+                    }
+                    if (args.length < 3 || args.length > 4) {
+                        return await socket.responderTexto(c, chatId, "Formato inválido. Use !vod [vdd/dsf] [nível]", id)
+                    }
+
+                    const tipoEscolha = args[1].toLowerCase()
+                    const nivel = parseInt(args[2])
+                    const tipoEscolhaMapeado = tipoEscolha === 'vdd' ? 'truth' : tipoEscolha === 'dsf' ? 'dare' : ''
+
+                    if (!tipoEscolhaMapeado) {
+                        return await socket.responderTexto(c, chatId, "Tipo de escolha inválido. Use vdd ou dsf.", id)
+                    }
+                    if (isNaN(nivel) || nivel < 1 || nivel > 5) {
+                        return await socket.responderTexto(c, chatId, "Nível inválido. Use um número de 1 a 5.", id)
+                    }
+
+                    const frasesVOD = await axios.get("https://gist.githubusercontent.com/thiagopivatto/3ed7f417a37590b75745cc1c4cba450a/raw/a960f63a10323565a21c32d13a457edca67ebb75/vod.json")
+                    const frasesFiltradas = frasesVOD.data.filter(frase => frase.level === nivel.toString() && frase.type.toLowerCase() === tipoEscolhaMapeado)
+
+                    if (frasesFiltradas.length > 0) {
+                        const { frases } = await traduzirFrases(frasesFiltradas)
+                        const fraseSelecionada = frases[Math.floor(Math.random() * frases.length)]
+                        const mensagemResposta = `🌟 *Nível:* ${nivel}\n🔥 *Tipo:* ${tipoEscolhaMapeado === 'truth' ? '🔮 Verdade' : '🎲 Desafio'}\n💬 *Frase:* ${fraseSelecionada.summary}`
+                        await socket.responderTexto(c, chatId, mensagemResposta, id)
+                    } else {
+                        await socket.responderTexto(c, chatId, "Não foram encontradas frases com o nível e tipo especificados.", id)
+                    }
+                } catch (err) {
+                    throw err
                 }
                 break
 
-
-
+            case 'musica':
+                try {
+                    if (args.length < 2) {
+                        return await socket.responderTexto(c, chatId, "Formato inválido. Use !musica [descrição]", id)
+                    }
+            
+                    const descricaoPrompt = textoRecebido.slice(command.length + 1).trim()
+                    await socket.responderTexto(c, chatId, "🎶 Gerando sua música, por favor aguarde...", id)
+            
+                    const { sucesso, filePath, erro } = await criarMusica(descricaoPrompt)
+                    if (sucesso) {
+                        const musicaBuffer = fs.readFileSync(filePath)
+                        await socket.responderArquivo(c, chatId, musicaBuffer, 'musica.mp3', '🎵 Sua música está pronta!', id)
+                    } else {
+                        await socket.responderTexto(c, chatId, `⚠️ *Erro ao gerar música:* ${erro}`, id)
+                    }
+                } catch (err) {
+                    consoleErro(err)
+                    await socket.responderTexto(c, chatId, "❌ Houve um erro ao processar o comando.", id)
+                }
+                break
+                
             
         }
     } catch(err){
