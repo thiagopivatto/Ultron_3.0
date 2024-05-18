@@ -12,7 +12,7 @@ export const grupo = async(c, mensagemBaileys, botInfo) => {
     const msgs_texto = obterMensagensTexto(botInfo)
     const botNumber = botInfo.hostNumber, {prefixo, nome_bot} = botInfo
     const {groupId, grupoInfo, groupOwner, groupMembers, groupAdmins, isGroupAdmins, isBotGroupAdmins} = mensagemBaileys.grupo
-    const {command, args, textoRecebido, id, chatId, sender, isGroupMsg, username, type, isMedia, mimetype, quotedMsg, quotedMsgObj, quotedMsgObjInfo, mentionedJidList} = mensagemBaileys
+    const {command, args, textoRecebido, id, chatId, sender, isGroupMsg, username, type, isMedia, mimetype, quotedMsg, quotedMsgObj, quotedMsgObjInfo, mentionedJidList, body} = mensagemBaileys
 
     if (!isGroupMsg) return await socket.responderTexto(c, chatId, msgs_texto.permissao.grupo, id)
     let cmdSemPrefixo = command.replace(prefixo, "")
@@ -509,22 +509,30 @@ export const grupo = async(c, mensagemBaileys, botInfo) => {
                 }
                 break
                 
-            case 'mta':
-                    const members = await client.getGroupMembers(groupId);
-                    const mensagem = body.slice(5).trim();
-                    let mentionString = '';
-                    for (let member of members) {
-                        mentionString += `@${member.id.split('@')[0]} `;
+                case 'mta':
+                    try {
+                        const mensagem = body.slice(5).trim();
+                        let anonymousMention = '';
+                
+                        if (mensagem) {
+                            anonymousMention = mensagem;
+                        } else {
+                            anonymousMention = '*ATENÇÃO!*';
+                        }
+                
+                        // Crie uma string de menções, mas não a inclua na mensagem a ser enviada
+                        let mentionList = groupMembers
+                            .filter(member => member.id)
+                            .map(member => `@${member.id.split('@')[0]}`)
+                            .join(' ');
+                
+                        // Enviar a mensagem sem a string de menções
+                        await socket.enviarTextoComMencoes(c, chatId, anonymousMention, groupMembers);
+                    } catch (err) {
+                        throw err;
                     }
-                    let anonymousMention = '';
-                    if (mensagem) {
-                        anonymousMention = mensagem;
-                    } else {
-                        anonymousMention = '*ATENÇÃO!*';
-                    }
-                    const messageToSend = `${mentionString}\n\n${anonymousMention}`;
-                    await client.sendTextWithMentions(from, messageToSend, true);
-                    break
+                    break;
+                
             
             case 'bantodos':
                 try{
