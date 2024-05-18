@@ -33,19 +33,21 @@ export const diversao = async(c, mensagemBaileys, botInfo) => {
                 break
 
             case 'simi':
-                try{
-                    if(args.length === 1) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
+                try {
+                    if (args.length === 1) return await socket.responderTexto(c, chatId, erroComandoMsg(command, botInfo), id)
                     let perguntaSimi = textoRecebido.slice(6).trim()
-                    await api.IA.simiResponde(perguntaSimi).then(async ({resultado})=>{
-                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.diversao.simi.resposta, timestampParaData(Date.now()), resultado), id)
-                    }).catch(async(err)=>{
-                        if(!err.erro) throw err
-                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro) , id)
+                    await api.IA.simiResponde(perguntaSimi).then(async ({ resultado }) => {
+                        let resultadoFormatado = resultado.charAt(0).toUpperCase() + resultado.slice(1)
+                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.diversao.simi.resposta, timestampParaData(Date.now()), resultadoFormatado), id)
+                    }).catch(async (err) => {
+                        if (!err.erro) throw err
+                        await socket.responderTexto(c, chatId, criarTexto(msgs_texto.geral.erro_api, command, err.erro), id)
                     })
-                } catch(err){
+                } catch (err) {
                     throw err
                 }
                 break
+                
             
             case 'viadometro' :
                 try{

@@ -574,8 +574,7 @@ export const obterMensagensTexto = (botInfo)=>{
         },
         diversao: {
             simi:{
-                resposta : `{p1} - 🐤 *SIMI* : \n\n`+
-                `{p2}`,
+                resposta : `{p2}`,
                 erro : `[❗] Houve um erro no SIMI e não foi possível obter a resposta.`
             },
             viadometro: {
