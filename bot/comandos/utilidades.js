@@ -448,10 +448,10 @@ export const utilidades = async(c, mensagemBaileys, botInfo) => {
 
             case 'cotacao':
                 if (args.length < 2) {
-                    client.reply(from, 'Uso incorreto! Utilize o comando da seguinte forma: !cotacao <ativo>', id);
+                    client.reply(from, 'Uso incorreto! Utilize o comando da seguinte forma: cotacao <ativo>', id);
                 } else {
                 const ativo = args[1].toUpperCase(); // Obtém o ativo do segundo argumento
-                api.getCotacao(ativo)
+                await api.Gerais.obterCotacao(ativo)
                     .then((data) => {
                     const resposta = criarRespostaCotacao(data, ativo);
                     client.reply(from, resposta, id);

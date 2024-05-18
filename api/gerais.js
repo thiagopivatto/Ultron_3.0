@@ -5,6 +5,79 @@ import translate from '@vitalets/google-translate-api' ;
 import google from '@victorsouzaleal/googlethis'
 import Genius from 'genius-lyrics'
 
+export const getCotacao = async (ativo) =>{
+    return new Promise(async(resolve,reject)=>{
+        try {
+            let response;
+            let data;
+            let mercado;
+        
+            // Tenta obter a cotação na B3
+            response = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ativo}.SAO&apikey=${alphaVantageApiKey}`);
+            data = response.data['Global Quote'];
+            mercado = 'B3';
+        
+            if (!data || !data['01. symbol']) {
+              // Se não obteve sucesso na B3, tenta obter na NASDAQ
+              response = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ativo}&apikey=${alphaVantageApiKey}`);
+              data = response.data['Global Quote'];
+              mercado = 'NASDAQ';
+        
+              if (!data || !data['01. symbol']) {
+                // Se não obteve sucesso na NASDAQ, tenta obter na NYSE
+                response = await axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ativo}&apikey=${alphaVantageApiKey}`);
+                data = response.data['Global Quote'];
+                mercado = 'NYSE';
+        
+                if (!data || !data['01. symbol']) {
+                  // Se não obteve sucesso na NYSE, tenta obter na criptomoeda
+                  response = await axios.get(`https://www.alphavantage.co/query?function=CURRENCY_EXCHANGE_RATE&from_currency=${ativo}&to_currency=USD&apikey=${alphaVantageApiKey}`);
+                  data = response.data['Realtime Currency Exchange Rate'];
+                  mercado = 'cryptos';
+                }
+              }
+            }
+        
+            // Extrair os dados necessários com base no mercado
+            let result;
+            if (mercado === 'B3') {
+              result = {
+                b3: {
+                  symbol: data['01. symbol'],
+                  price: data['05. price'],
+                  lastUpdated: data['07. latest trading day'],
+                  change: data['09. change'],
+                  changePercent: data['10. change percent'],
+                },
+              };
+            } else if (mercado === 'NASDAQ' || mercado === 'NYSE') {
+              result = {
+                nasdaq: {
+                  symbol: data['01. symbol'],
+                  price: data['05. price'],
+                  lastUpdated: data['07. latest trading day'],
+                  change: data['09. change'],
+                  changePercent: data['10. change percent'],
+                },
+              };
+            } else if (mercado === 'cryptos') {
+              result = {
+                cryptos: {
+                  symbol: data['1. From_Currency Code'],
+                  name: data['2. From_Currency Name'],
+                  price: data['5. Exchange Rate'],
+                  lastUpdated: data['6. Last Refreshed'],
+                },
+              };
+            }
+        
+            return result;
+          } catch (error) {
+            console.error('Erro ao obter cotação:', error);
+            throw new Error('Não foi possível obter a cotação no momento.');
+          }
+    })
+}
 
 export const top20TendenciasDia = async(tipoDeDados)=>{
     return new Promise(async(resolve,reject)=>{
