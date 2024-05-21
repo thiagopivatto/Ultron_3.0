@@ -3,28 +3,15 @@ import {toSticker, updateExif} from 'wa-leal-stickers'
 import ffmpeg from 'fluent-ffmpeg'
 import path from 'node:path'
 import fs from 'fs-extra'
-import sharp from 'sharp';
 
 
 export const criarSticker = async (bufferMidia, opcoes) => {
     return new Promise(async (resolve, reject) => {
         try {
             let resposta = { sucesso: false };
-            const { pack, autor, fps, tipo, manterProporcao } = opcoes;
+            const { pack, autor, fps, tipo } = opcoes;
 
             let bufferImagem = bufferMidia;
-
-            if (manterProporcao) {
-                const imagem = sharp(bufferMidia);
-                const metadata = await imagem.metadata();
-
-                // Ajusta a imagem para caber dentro de um 512x512, mantendo a proporção
-                bufferImagem = await imagem.resize({
-                    width: metadata.width > metadata.height ? 512 : null,
-                    height: metadata.height >= metadata.width ? 512 : null,
-                    fit: 'inside'
-                }).toBuffer();
-            }
 
             await toSticker(bufferImagem, { pack, author: autor, fps, type: tipo }).then((bufferSticker) => {
                 resposta = { sucesso: true, resultado: bufferSticker };
